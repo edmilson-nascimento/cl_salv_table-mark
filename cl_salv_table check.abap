@@ -22,11 +22,6 @@ class minha_classe definition .
       range_node_key type range of snwd_texts-node_key,
       range_parent_key type range of snwd_texts-parent_key .
 
-    data:
-      out        type table of snwd_texts,
-      table      type ref to cl_salv_table,
-      selections type ref to cl_salv_selections .
-
     methods get_data
       importing
         !node type range_node_key
@@ -39,11 +34,16 @@ class minha_classe definition .
              of cl_salv_events_table
       importing e_salv_function.
 
-    class-methods process .
-
   protected section .
 
   private section .
+
+    data:
+      out        type table of snwd_texts,
+      table      type ref to cl_salv_table,
+      selections type ref to cl_salv_selections .
+
+    class-methods process .
 
     methods config_layout
       changing table type ref to cl_salv_table .
@@ -244,31 +244,38 @@ class minha_classe implementation .
     field-symbols:
       <line> type snwd_texts .
 
-    if obj->table is bound .
+    case sy-ucomm .
 
-      value = obj->selections->get_selected_rows( ) .
+      when 'RUN' .
 
-      loop at value into line .
+        if obj->table is bound .
 
-        read table obj->out assigning <line> index line .
+          value = obj->selections->get_selected_rows( ) .
 
-        if sy-subrc eq 0 .
+          loop at value into line .
 
-          concatenate '@S_OKAY@ Processado | '
-                      <line>-text
-                 into <line>-text
-           respecting blanks .
+            read table obj->out assigning <line> index line .
 
-          unassign <line> .
+            if sy-subrc eq 0 .
+
+              concatenate '@S_OKAY@ Processado | '
+                          <line>-text
+                     into <line>-text
+               respecting blanks .
+
+              unassign <line> .
+
+            endif .
+
+          endloop .
+
+          obj->table->refresh( ) .
 
         endif .
 
-      endloop .
+      when others .
 
-
-      obj->table->refresh( ) .
-
-    endif .
+    endcase .
 
   endmethod .                    "link_click
 

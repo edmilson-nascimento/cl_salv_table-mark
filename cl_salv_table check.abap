@@ -1,5 +1,8 @@
 report  zfactory.
 
+
+report  yteste.
+
 *----------------------------------------------------------------------*
 *- Tipos SAP
 *----------------------------------------------------------------------*
@@ -12,14 +15,22 @@ tables:
   snwd_texts .
 
 *----------------------------------------------------------------------*
-*- Definição da Classe
+*- DefiniÃ§Ã£o da Classe
 *----------------------------------------------------------------------*
 class minha_classe definition .
 
   public section .
 
     types:
-      range_node_key type range of snwd_texts-node_key,
+      begin of ty_out,
+        node_key   type snwd_texts-node_key,
+        parent_key type snwd_texts-parent_key,
+        text       type snwd_texts-text,
+        status     type snwd_texts-text,
+      end of ty_out,
+
+      tab_out          type table of ty_out,
+      range_node_key   type range of snwd_texts-node_key,
       range_parent_key type range of snwd_texts-parent_key .
 
     methods get_data
@@ -39,7 +50,8 @@ class minha_classe definition .
   private section .
 
     data:
-      out        type table of snwd_texts,
+      out        type tab_out,
+*     out        type table of snwd_texts,
       table      type ref to cl_salv_table,
       selections type ref to cl_salv_selections .
 
@@ -61,7 +73,7 @@ data:
   obj type ref to minha_classe .
 
 *----------------------------------------------------------------------*
-*- Implementação da Classe
+*- ImplementaÃ§Ã£o da Classe
 *----------------------------------------------------------------------*
 class minha_classe implementation .
 
@@ -92,13 +104,13 @@ class minha_classe implementation .
 
     if lines( lt_where ) eq 0 .
 
-      select *
+      select node_key parent_key text
         into table out
         from snwd_texts .
 
     else .
 
-      select *
+      select node_key parent_key text
         into table out
         from snwd_texts
        where (lt_where) .
@@ -132,11 +144,11 @@ class minha_classe implementation .
             CHANGING
               t_table      = out.
 
-*         Eventos do relatório
+*         Eventos do relatÃ³rio
           events = table->get_event( ).
           set handler minha_classe=>on_added_function for events.
 
-*         Habilita opção de selecionar linha
+*         Habilita opÃ§Ã£o de selecionar linha
           selections = table->get_selections( ).
           selections->set_selection_mode( if_salv_c_selection_mode=>row_column ).
 
@@ -146,7 +158,7 @@ class minha_classe implementation .
 *         report        = 'SAPLKKBL'
           report        = sy-repid
           set_functions = table->c_functions_all ).
-*         Obs: é necessário criar um botão com o código "RUN"
+*         Obs: Ã© necessÃ¡rio criar um botÃ£o com o cÃ³digo "RUN"
 *         no Status GUI que foi copiado do Standard.
 
 *         Configurando Layout
@@ -165,7 +177,7 @@ class minha_classe implementation .
           display = table->get_display_settings( ) .
           display->set_striped_pattern( cl_salv_display_settings=>true ) .
 
-*        Ordenação de campos
+*        OrdenaÃ§Ã£o de campos
           sorts = table->get_sorts( ) .
           sorts->add_sort('NODE_KEY') .
 
@@ -212,22 +224,25 @@ class minha_classe implementation .
     try .
 
         columns = table->get_columns( ).
-        columns->set_optimize( 'X' ).
+        columns->set_optimize( abap_on ).
 
-        column ?= columns->get_column( 'HIERTYPE' ).
-        column->set_technical( if_salv_c_bool_sap=>true ) .
+        column ?= columns->get_column( 'NODE_KEY' ).
+        column->set_key( if_salv_c_bool_sap=>true ) .
 
-        column ?= columns->get_column( 'NAVTREE' ).
-        column->set_icon( if_salv_c_bool_sap=>true ).
-        column->set_cell_type( if_salv_c_cell_type=>hotspot ).
-        column->set_long_text( 'Nível' ).
-        column->set_symbol( if_salv_c_bool_sap=>true ).
-
-        column ?= columns->get_column( 'GUID' ).
-        column->set_technical( if_salv_c_bool_sap=>true ) .
-
-        column ?= columns->get_column( 'SEQNO_OUT' ).
-        column->set_technical( if_salv_c_bool_sap=>true ) .
+*        column ?= columns->get_column( 'HIERTYPE' ).
+*        column->set_technical( if_salv_c_bool_sap=>true ) .
+*
+*        column ?= columns->get_column( 'NAVTREE' ).
+*        column->set_icon( if_salv_c_bool_sap=>true ).
+*        column->set_cell_type( if_salv_c_cell_type=>hotspot ).
+*        column->set_long_text( 'NÃ­vel' ).
+*        column->set_symbol( if_salv_c_bool_sap=>true ).
+*
+*        column ?= columns->get_column( 'GUID' ).
+*        column->set_technical( if_salv_c_bool_sap=>true ) .
+*
+*        column ?= columns->get_column( 'SEQNO_OUT' ).
+*        column->set_technical( if_salv_c_bool_sap=>true ) .
 
       catch cx_salv_not_found .
 
@@ -242,7 +257,7 @@ class minha_classe implementation .
       line  type i .
 
     field-symbols:
-      <line> type snwd_texts .
+      <line> type ty_out .
 
     case sy-ucomm .
 
@@ -258,10 +273,16 @@ class minha_classe implementation .
 
             if sy-subrc eq 0 .
 
-              concatenate '@S_OKAY@ Processado | '
-                          <line>-text
-                     into <line>-text
-               respecting blanks .
+              if ( <line>-status is initial ) or
+                 ( <line>-status(8) eq '@B_DUMY@' ).
+
+                <line>-status = '@S_OKAY@ Processado.' .
+
+              else .
+
+                <line>-status = '@B_DUMY@ Pendente' .
+
+              endif .
 
               unassign <line> .
 
@@ -282,7 +303,7 @@ class minha_classe implementation .
 endclass .                    "minha_classe IMPLEMENTATION
 
 *----------------------------------------------------------------------*
-*- Tela de seleção
+*- Tela de seleÃ§Ã£o
 *----------------------------------------------------------------------*
 selection-screen begin of block b1 with frame title text-t01.
 

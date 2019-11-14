@@ -1,5 +1,4 @@
-report  zfactory.
-REPORT YTESTE.
+report yteste .
 
 *----------------------------------------------------------------------*
 *- Tipos SAP

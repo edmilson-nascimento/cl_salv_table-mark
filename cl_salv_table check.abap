@@ -1,4 +1,5 @@
 report  zfactory.
+REPORT YTESTE.
 
 *----------------------------------------------------------------------*
 *- Tipos SAP
@@ -151,10 +152,10 @@ class minha_classe implementation .
 
 *         Usando Status
           table->set_screen_status(
-          pfstatus      = 'STANDARD_FULLSCREEN'
-*         report        = 'SAPLKKBL'
-          report        = sy-repid
-          set_functions = table->c_functions_all ).
+            pfstatus      = 'STANDARD_FULLSCREEN'
+            report        = 'SAPLKKBL'
+            set_functions = table->c_functions_all 
+          ).
 *         Obs: é necessário criar um botão com o código "RUN"
 *         no Status GUI que foi copiado do Standard.
 

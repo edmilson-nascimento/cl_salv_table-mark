@@ -321,7 +321,7 @@ start-of-selection .
   create object obj .
 
   obj->get_data(
-      node = node[]
+    node = node[]
       parent = parent[]
   ) .
 

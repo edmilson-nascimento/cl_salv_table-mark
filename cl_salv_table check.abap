@@ -323,6 +323,6 @@ start-of-selection .
   obj->get_data(
       node = node[]
       parent = parent[]
-   ) .
+  ) .
 
   obj->show_data( ) .

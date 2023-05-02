@@ -43,13 +43,9 @@ Exemplo de utilizaçã de uma classe com a opção de _mark_ no ALV.
 
               if ( <line>-status is initial ) or
                  ( <line>-status(8) eq '@B_DUMY@' ).
-
                 <line>-status = '@S_OKAY@ Processado.' .
-
               else .
-
                 <line>-status = '@B_DUMY@ Pendente' .
-
               endif .
 
               unassign <line> .
@@ -75,6 +71,26 @@ Exemplo de utilizaçã de uma classe com a opção de _mark_ no ALV.
 
     obj->process( ) .
 
-  endmethod .                    "user_command
+  endmethod .                    " user_command
 ```
 
+```mermaid
+classDiagram
+
+    ZIF_CORE_TVARVC <|-- ZCL_CORE_TVARVC
+    ZCL_CORE_TVARVC -- ZIF_CORE_TVARVC_DB
+    ZIF_CORE_TVARVC_DB <|-- ZCL_CORE_TVARVC_DB
+    ZIF_CORE_TVARVC : + read_parameter
+    ZIF_CORE_TVARVC : + read_select_options
+    ZIF_CORE_TVARVC : + read_select_options_tab
+
+    class ZCL_CORE_TVARVC{
+        + mo_tvarve_db
+    }
+    class ZIF_CORE_TVARVC_DB{
+        + find_by_id
+        + find_all_by_id
+    }
+    class ZCL_CORE_TVARVC_DB{
+    }
+```

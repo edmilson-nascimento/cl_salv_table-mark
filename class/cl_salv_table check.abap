@@ -319,6 +319,9 @@ initialization .
 start-of-selection .
 
   create object obj .
+  if ( obj is not bouend ) .
+    return .
+  endif .
 
   obj->get_data(
     node = node[]

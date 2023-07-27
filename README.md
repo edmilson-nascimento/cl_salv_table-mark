@@ -3,7 +3,7 @@
 
 [![N|Solid](https://wiki.scn.sap.com/wiki/download/attachments/1710/ABAP%20Development.png?version=1&modificationDate=1446673897000&api=v2)](https://www.sap.com/brazil/developer.html)
 
-Exemplo de utilizaçã de uma classe com a opção de _mark_ no ALV.
+Exemplo de utilização de uma classe com a opção de _mark_ no ALV.
 
 ```abap
 * Declaration
